@@ -1,7 +1,9 @@
 package com.example.mapdemo;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
@@ -10,8 +12,9 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -51,22 +54,20 @@ public class MapDemoActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-
     private SupportMapFragment mapFragment;
     private GoogleMap map;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
-
     private double latitude;
     private double longitude;
     private long dateTime;
-    private String URL = "http://195.140.162.44:8080/spyder/records/";
+    public String IP = "195.140.162.44";
+    public String Port = "8080";
+    private String URL = "http://"+IP+":"+Port+"/spyder/records/";
+    public String phoneNumber;
 
-    private EditText text;
-    private String phoneNumber;
-    private Button btn;
     /*
      * Define a request code to send to Google Play services This code is
      * returned in Activity.onActivityResult
@@ -78,14 +79,6 @@ public class MapDemoActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_demo_activity);
 
-        text = (EditText) findViewById(R.id.editText);
-        btn = (Button) findViewById(R.id.btn);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadMap(map);
-            }
-        });
 
 
         mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
@@ -101,7 +94,97 @@ public class MapDemoActivity extends AppCompatActivity implements
         }
 
     }
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        // Операции для выбранного пункта меню
+        switch (item.getItemId())
+        {
+            case R.id.new_game:
+               onClickIP();
+                return true;
+            case R.id.help:
+                onClickNumber();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
+    public void onClickIP() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Connection Settings")
+                .setMessage("IP")
+                .setCancelable(false);
+
+        final EditText inputIP = new EditText(this);
+        builder.setView(inputIP);
+         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                 IP = inputIP.getText().toString();
+                 onClickPort();
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+            }
+        });
+
+        builder.show();
+    }
+    public void onClickPort() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Connection Settings")
+                .setMessage("Port")
+                .setCancelable(false);
+
+        final EditText inputPort = new EditText(this);
+        builder.setView(inputPort);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                Port = inputPort.getText().toString();
+                loadMap(map);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        builder.show();
+    }
+    public void onClickNumber() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Number")
+                .setMessage("Phone number")
+                .setCancelable(false);
+
+        final EditText inputN = new EditText(this);
+        builder.setView(inputN);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                phoneNumber = inputN.getText().toString();
+                loadMap(map);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
+
+        builder.show();
+    }
     protected void loadMap(GoogleMap googleMap) {
         map = googleMap;
         if (map != null) {
@@ -334,7 +417,7 @@ public class MapDemoActivity extends AppCompatActivity implements
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            phoneNumber = text.getText().toString();
+
         }
 
         @Override
@@ -364,6 +447,7 @@ public class MapDemoActivity extends AppCompatActivity implements
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
             Log.d(TAG, "doInBackground4: " + responseString[0]);
             return responseString;
 
@@ -373,7 +457,7 @@ public class MapDemoActivity extends AppCompatActivity implements
         protected void onPostExecute(double... result) {
             super.onPostExecute(result);
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(result[0], result[1]), 15));
-//
+
             map.addMarker(new MarkerOptions()
                     .title("11.03.2016, 10:46")
 //                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))

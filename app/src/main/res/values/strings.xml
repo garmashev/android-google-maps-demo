@@ -4,5 +4,7 @@
     <string name="app_name">Map Demo</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <string name="adress">Connection Settings </string>
+    <string name="number">Change number</string>
 
 </resources>
