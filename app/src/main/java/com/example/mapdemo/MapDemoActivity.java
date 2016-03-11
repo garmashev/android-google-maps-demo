@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -23,7 +26,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -57,11 +59,14 @@ public class MapDemoActivity extends AppCompatActivity implements
     private long UPDATE_INTERVAL = 60000;  /* 60 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 secs */
 
-    private double latitude ;
-    private double longitude ;
-    private long dateTime ;
-    private String URL = "http://195.140.162.44:8080/spyder/records/+380996276020";
+    private double latitude;
+    private double longitude;
+    private long dateTime;
+    private String URL = "http://195.140.162.44:8080/spyder/records/";
 
+    private EditText text;
+    private String phoneNumber;
+    private Button btn;
     /*
      * Define a request code to send to Google Play services This code is
      * returned in Activity.onActivityResult
@@ -72,6 +77,16 @@ public class MapDemoActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_demo_activity);
+
+        text = (EditText) findViewById(R.id.editText);
+        btn = (Button) findViewById(R.id.btn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadMap(map);
+            }
+        });
+
 
         mapFragment = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map));
         if (mapFragment != null) {
@@ -171,7 +186,7 @@ public class MapDemoActivity extends AppCompatActivity implements
         switch (requestCode) {
 
             case CONNECTION_FAILURE_RESOLUTION_REQUEST:
-			/*
+            /*
 			 * If the result code is Activity.RESULT_OK, try to connect again
 			 */
                 switch (resultCode) {
@@ -314,16 +329,22 @@ public class MapDemoActivity extends AppCompatActivity implements
 
     class RequestTask extends AsyncTask<String, String, double[]> {
 
-        private static final String TAG = "Debug" ;
+        private static final String TAG = "Debug";
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            phoneNumber = text.getText().toString();
+        }
 
         @Override
         protected double[] doInBackground(String... uri) {
             double[] responseString = new double[2];
             try {
-                java.net.URL url = new URL(uri[0]);
+
+                java.net.URL url = new URL(uri[0] + phoneNumber);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                if(conn.getResponseCode() == HttpsURLConnection.HTTP_OK)
-                {
+                if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
                     InputStream in = new BufferedInputStream(conn.getInputStream());
                     JSONArray ja = new JSONArray(convertInputStreamToString(in));
                     for (int i = 0; i < ja.length(); i++) {
@@ -334,17 +355,16 @@ public class MapDemoActivity extends AppCompatActivity implements
                         responseString[1] = longitude;
                         break;
                     }
-                }
-                else {
+                } else {
                     String response = "FAILED";
-                    Log.d(TAG, "doInBackground3: " +response);
+                    Log.d(TAG, "doInBackground3: " + response);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.d(TAG, "doInBackground4: " +responseString[0]);
+            Log.d(TAG, "doInBackground4: " + responseString[0]);
             return responseString;
 
         }
@@ -364,7 +384,7 @@ public class MapDemoActivity extends AppCompatActivity implements
         }
     }
 
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException{
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String line = "";
         String result = "";
