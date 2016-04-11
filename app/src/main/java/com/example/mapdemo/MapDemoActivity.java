@@ -31,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -189,23 +190,23 @@ public class MapDemoActivity extends AppCompatActivity implements
         map = googleMap;
         if (map != null) {
             // Map is ready
-            new RequestTask().execute(URL);
-//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(48.4651708, 35.0467873), 15));
-//
-//            map.addMarker(new MarkerOptions()
-//                    .title("11.03.2016, 10:46")
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
-//                    .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
-//                    .position(new LatLng(48.4651708, 35.0467873)));
+     //       new RequestTask().execute(URL);
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(48.4651708, 35.0467873), 15));
 
-//            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-//                    new LatLng(-18.142, 178.431), 2));
-//            map.addPolyline(new PolylineOptions().geodesic(true)
-//                            .add(new LatLng(-33.866, 151.195))  // Sydney
-//                            .add(new LatLng(-18.142, 178.431))  // Fiji
-//                            .add(new LatLng(21.291, -157.821))  // Hawaii
-//                            .add(new LatLng(37.423, -122.091))  // Mountain View
-//            );
+            map.addMarker(new MarkerOptions()
+                    .title("11.03.2016, 10:46")
+                            //  .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
+                    .anchor(0.0f, 1.0f) // Anchors the marker on the bottom left
+                    .position(new LatLng(48.4651708, 35.0467873)));
+
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(-18.142, 178.431), 2));
+            map.addPolyline(new PolylineOptions().geodesic(true)
+                            .add(new LatLng(-33.866, 151.195))  // Sydney
+                            .add(new LatLng(-18.142, 178.431))  // Fiji
+                            .add(new LatLng(21.291, -157.821))  // Hawaii
+                            .add(new LatLng(37.423, -122.091))  // Mountain View
+            );
             Toast.makeText(this, "Map Fragment was loaded properly!", Toast.LENGTH_SHORT).show();
             MapDemoActivityPermissionsDispatcher.getMyLocationWithCheck(this);
         } else {
@@ -331,8 +332,7 @@ public class MapDemoActivity extends AppCompatActivity implements
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         mLocationRequest.setInterval(UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                mLocationRequest, this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     public void onLocationChanged(Location location) {
